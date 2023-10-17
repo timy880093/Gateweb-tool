@@ -22,27 +22,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import view.page.Home
-import view.page.RichKeyScreen
-import view.page.TestA
 
 @Composable
 @Preview
 fun App() {
-  val btnRichKey = "Rich standalone key"
-  val btnTest = "Test"
-  val buttonList = listOf(
-    btnRichKey,
-    btnTest,
-  )
-
-//  val map = mapOf(
-//    "Rich standalone key" to RichKey(),
-//    "Test" to TestA()
-//  )
   var isDark by remember { mutableStateOf(true) }
   var isHome by remember { mutableStateOf(true) }
-  var selectedPageText by remember { mutableStateOf("") }
+  var selectedPage by remember { mutableStateOf("") }
 
   DarkModeTheme(isDark = isDark) {
     Box(
@@ -89,7 +75,7 @@ fun App() {
               TextButton(modifier = Modifier.fillMaxWidth().height(40.dp),
                 onClick = {
                   println(it)
-                  selectedPageText = it
+                  selectedPage = it
                   isHome = false
                 }) {
                 Text(
@@ -108,13 +94,7 @@ fun App() {
             modifier = Modifier.fillMaxWidth().weight(0.7f).padding(20.dp)
               .verticalScroll(rememberScrollState())
           ) {
-            if (isHome)
-              Home()
-            else when (selectedPageText) {
-              btnRichKey -> RichKeyScreen()
-              btnTest -> TestA()
-            }
-
+            PageRouter(isHome, selectedPage)
           }
 
         }
