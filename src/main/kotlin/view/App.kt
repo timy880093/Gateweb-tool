@@ -10,7 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,12 +44,6 @@ fun App() {
   var isHome by remember { mutableStateOf(true) }
   var selectedPageText by remember { mutableStateOf("") }
 
-//  Card(
-//    modifier = Modifier.fillMaxSize().padding(10.dp),
-//    shape = RoundedCornerShape(10.dp),
-//    elevation = 0.dp,
-//    backgroundColor = Color.White
-//  ) {
   DarkModeTheme(isDark = isDark) {
     Box(
       modifier = Modifier.fillMaxSize(),
@@ -83,15 +80,13 @@ fun App() {
             modifier = Modifier.fillMaxSize().weight(0.3f)
               .background(
                 color = if (isDark) Color.DarkGray else Color.LightGray,
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(5.dp)
               )
               .verticalScroll(rememberScrollState())
           ) {
             buttonList.forEach {
 //        map.keys.forEach {
               TextButton(modifier = Modifier.fillMaxWidth().height(40.dp),
-                shape = RoundedCornerShape(1.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Unspecified),
                 onClick = {
                   println(it)
                   selectedPageText = it
@@ -102,7 +97,6 @@ fun App() {
                   style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isDark) Color.White else Color.Black
                   )
                 )
               }
