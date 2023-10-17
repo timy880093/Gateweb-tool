@@ -2,10 +2,9 @@ package view
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,33 +19,37 @@ fun Space(int: Int) {
 @Composable
 fun ValidationTextField(
   label: String,
-  map: Map<String, (String) -> Boolean>? = null,
+  defaultValue:String,
+  enableValidate: Boolean,
+  validators: Map<String, (String) -> Boolean>,
   onStateChanged: (TextFieldState) -> Unit
 ) {
-  var text by remember { mutableStateOf("") }
+  var value by remember { mutableStateOf(defaultValue) }
   var isError by remember { mutableStateOf(false) }
 
-  TextField(
-    modifier = Modifier.fillMaxWidth().height(50.dp),
+  OutlinedTextField(
+    modifier = Modifier.fillMaxWidth(),
     label = { Text(label) },
-    value = text,
+    value = value,
     onValueChange = {
-      text = it
-      map?.let { m -> isError = m.values.any { func -> !func(text) } }
+      value = it
+      if (enableValidate)
+        isError = validators.values.any { func -> !func(value) }
       // call back 將組件內 state 傳出去
-      onStateChanged(TextFieldState(text, isError))
+      onStateChanged(TextFieldState(value, isError))
     },
     isError = isError
   )
 
-  map?.let { m ->
-    m.filterValues { func -> !func(text) }.forEach { (t, _) ->
+
+  if (enableValidate)
+    validators.filterValues { func -> !func(value) }.forEach { (t, _) ->
       Text(
         text = t,
         color = Color.Red,
         modifier = Modifier.padding(start = 12.dp, top = 4.dp)
       )
     }
-  }
+
 
 }
