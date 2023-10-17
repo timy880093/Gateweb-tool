@@ -1,26 +1,28 @@
-package view
+package view.page
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.Permit
+import model.TextFieldState
+import org.koin.compose.koinInject
+import org.slf4j.LoggerFactory
 import service.RichService
+import view.Space
 
 @Composable
 @Preview
-fun RichKeyScreen2() {
-  val richService = RichService()
+fun RichKeyScreen() {
+  val log = LoggerFactory.getLogger("RichKeyScreen")
+  val richService = koinInject<RichService>()
 
-  var taxId1 by remember { mutableStateOf("") }
-  var taxId2 by remember { mutableStateOf("00000000") }
-  var taxId3 by remember { mutableStateOf("00000000") }
   var yearEnd by remember { mutableStateOf("00") }
   var localPrintCount by remember { mutableStateOf("0") }
   var cloudPrintCount by remember { mutableStateOf("0") }
@@ -33,44 +35,22 @@ fun RichKeyScreen2() {
   var key by remember { mutableStateOf("") }
   var lock by remember { mutableStateOf("") }
 
-  var isError by remember { mutableStateOf(false) }
+  var taxId1State by remember { mutableStateOf(TextFieldState("", false)) }
+  var taxId2State by remember { mutableStateOf(TextFieldState("00000000", false)) }
+  var taxId3State by remember { mutableStateOf(TextFieldState("00000000", false)) }
 
   Column {
     Row {
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("統編1") },
-          value = taxId1,
-          onValueChange = {
-            taxId1 = it
-            isError = it.isBlank()
-          },
-          isError = isError
-        )
-        if (isError) {
-          Text(
-            text = "統編必填",
-            color = Color.Red,
-            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-          )
-        }
-
+        ValidationTextField(
+          "統編1",
+          mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
+        ) { taxId1State = it }
+//        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
         Space(10)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("統編2") },
-          value = taxId2,
-          onValueChange = { taxId2 = it }
-        )
+        ValidationTextField("統編2", "統編有誤", validateIsNotBlank) { taxId2State = it }
         Space(10)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("統編3") },
-          value = taxId3,
-          onValueChange = { taxId3 = it }
-        )
-
+        ValidationTextField("統編3", "統編有誤", validateIsNotBlank) { taxId3State = it }
       }
       Space(20)
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
@@ -142,12 +122,18 @@ fun RichKeyScreen2() {
       horizontalArrangement = Arrangement.Center
     ) {
       Button(onClick = {
-        isError = taxId1.isBlank()
-        if (isError) return@Button
+//        isError = taxId1.isBlank()
+        println(taxId1State.isError)
+        println(taxId2State.isError)
+        println(taxId3State.isError)
+        if (taxId1State.isError || taxId2State.isError || taxId3State.isError) {
+          log.warn("validate error")
+          return@Button
+        }
 
         val permit = Permit(
           success = true,
-          businessNo = listOf(taxId1, taxId2, taxId3),
+          businessNo = listOf(taxId1State.text, taxId2State.text, taxId3State.text),
           localPrintAuthorizedQuantity = localPrintCount.toInt(),
           csvTransformAuthorizedQuantity = csvTransformCount.toInt(),
           txtTransformAuthorizedQuantity = txtTransformCount.toInt(),
@@ -191,6 +177,76 @@ fun RichKeyScreen2() {
 }
 
 @Composable
-private fun Space(int: Int) {
-  Spacer(modifier = Modifier.padding(int.dp))
+fun ValidationTextField(
+  label: String,
+  errorMessage: String? = null,
+  validationFunction: ((String) -> Boolean)? = null,
+  onStateChanged: (TextFieldState) -> Unit
+) {
+  var text by remember { mutableStateOf("") }
+  var isError by remember { mutableStateOf(false) }
+//  val msg by remember { mutableStateOf(errorMessage) }
+  TextField(
+    modifier = Modifier.fillMaxWidth().height(50.dp),
+    label = { Text(label) },
+    value = text,
+    onValueChange = {
+      text = it
+      validationFunction?.let { func -> isError = !func(it) }
+      // call back 將組件內 state 傳出去
+      onStateChanged(TextFieldState(text, isError))
+    },
+    isError = isError
+  )
+  if (isError) {
+    errorMessage?.let {
+      Text(
+        text = it,
+        color = Color.Red,
+        modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+      )
+    }
+  }
+}
+
+@Composable
+fun ValidationTextField(
+  label: String,
+  map: Map<String, (String) -> Boolean>? = null,
+  onStateChanged: (TextFieldState) -> Unit
+) {
+  var text by remember { mutableStateOf("") }
+  var isError by remember { mutableStateOf(false) }
+
+  TextField(
+    modifier = Modifier.fillMaxWidth().height(50.dp),
+    label = { Text(label) },
+    value = text,
+    onValueChange = {
+      text = it
+      map?.let { m -> isError = m.values.any { func -> !func(text) } }
+      // call back 將組件內 state 傳出去
+      onStateChanged(TextFieldState(text, isError))
+    },
+    isError = isError
+  )
+
+  map?.let { m ->
+    m.filterValues { func -> !func(text) }.forEach { (t, _) ->
+      Text(
+        text = t,
+        color = Color.Red,
+        modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+      )
+    }
+  }
+
+}
+
+val validateIsNotBlank: (String) -> Boolean = {
+  it.isNotBlank()
+}
+
+val validateIs8Words: (String) -> Boolean = {
+  it.length == 8
 }

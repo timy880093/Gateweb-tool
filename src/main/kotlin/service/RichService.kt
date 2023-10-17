@@ -5,8 +5,12 @@ import org.slf4j.LoggerFactory
 import utils.StandaloneUtil
 
 class RichService {
+  init {
+    println("init RichService")
+  }
+
   companion object {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = LoggerFactory.getLogger(RichService::class.java)
   }
 
   fun generateStandaloneKey(permit: Permit, yearEnd2: String): Pair<String, String> {
