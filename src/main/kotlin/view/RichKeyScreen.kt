@@ -44,7 +44,16 @@ fun RichKeyScreen() {
   Column {
     Row {
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
-        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
+        val mapOf = mapOf(
+          "統編有誤" to validateIsNotBlank
+        )
+        ValidationTextField(
+          "統編1", mapOf(
+            "統編必填" to validateIsNotBlank,
+            "統編格式有誤" to validateIs8Words
+          )
+        ) { taxId1State = it }
+//        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
         Space(10)
         ValidationTextField("統編2", "統編有誤", validateIsNotBlank) { taxId2State = it }
         Space(10)
@@ -209,6 +218,44 @@ fun ValidationTextField(
   }
 }
 
+@Composable
+fun ValidationTextField(
+  label: String,
+  map: Map<String, (String) -> Boolean>? = null,
+  onStateChanged: (TextFieldState) -> Unit
+) {
+  var text by remember { mutableStateOf("") }
+  var isError by remember { mutableStateOf(false) }
+
+  TextField(
+    modifier = Modifier.fillMaxWidth().height(50.dp),
+    label = { Text(label) },
+    value = text,
+    onValueChange = {
+      text = it
+      map?.let { m -> isError = m.values.any { func -> !func(text) } }
+      // call back 將組件內 state 傳出去
+      onStateChanged(TextFieldState(text, isError))
+    },
+    isError = isError
+  )
+
+  map?.let { m ->
+    m.filterValues { func -> !func(text) }.forEach { (t, _) ->
+      Text(
+        text = t,
+        color = Color.Red,
+        modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+      )
+    }
+  }
+
+}
+
 val validateIsNotBlank: (String) -> Boolean = {
   it.isNotBlank()
+}
+
+val validateIs8Words: (String) -> Boolean = {
+  it.length == 8
 }
