@@ -16,6 +16,7 @@ import org.koin.compose.koinInject
 import org.slf4j.LoggerFactory
 import service.RichService
 import view.Space
+import view.ValidationTextField
 
 @Composable
 @Preview
@@ -48,9 +49,15 @@ fun RichKeyScreen() {
         ) { taxId1State = it }
 //        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
         Space(10)
-        ValidationTextField("統編2", "統編有誤", validateIsNotBlank) { taxId2State = it }
+        ValidationTextField(
+          "統編2",
+          mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
+        ) { taxId2State = it }
         Space(10)
-        ValidationTextField("統編3", "統編有誤", validateIsNotBlank) { taxId3State = it }
+        ValidationTextField(
+          "統編3",
+          mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
+        ) { taxId3State = it }
       }
       Space(20)
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
@@ -176,72 +183,6 @@ fun RichKeyScreen() {
 
 }
 
-@Composable
-fun ValidationTextField(
-  label: String,
-  errorMessage: String? = null,
-  validationFunction: ((String) -> Boolean)? = null,
-  onStateChanged: (TextFieldState) -> Unit
-) {
-  var text by remember { mutableStateOf("") }
-  var isError by remember { mutableStateOf(false) }
-//  val msg by remember { mutableStateOf(errorMessage) }
-  TextField(
-    modifier = Modifier.fillMaxWidth().height(50.dp),
-    label = { Text(label) },
-    value = text,
-    onValueChange = {
-      text = it
-      validationFunction?.let { func -> isError = !func(it) }
-      // call back 將組件內 state 傳出去
-      onStateChanged(TextFieldState(text, isError))
-    },
-    isError = isError
-  )
-  if (isError) {
-    errorMessage?.let {
-      Text(
-        text = it,
-        color = Color.Red,
-        modifier = Modifier.padding(start = 12.dp, top = 4.dp)
-      )
-    }
-  }
-}
-
-@Composable
-fun ValidationTextField(
-  label: String,
-  map: Map<String, (String) -> Boolean>? = null,
-  onStateChanged: (TextFieldState) -> Unit
-) {
-  var text by remember { mutableStateOf("") }
-  var isError by remember { mutableStateOf(false) }
-
-  TextField(
-    modifier = Modifier.fillMaxWidth().height(50.dp),
-    label = { Text(label) },
-    value = text,
-    onValueChange = {
-      text = it
-      map?.let { m -> isError = m.values.any { func -> !func(text) } }
-      // call back 將組件內 state 傳出去
-      onStateChanged(TextFieldState(text, isError))
-    },
-    isError = isError
-  )
-
-  map?.let { m ->
-    m.filterValues { func -> !func(text) }.forEach { (t, _) ->
-      Text(
-        text = t,
-        color = Color.Red,
-        modifier = Modifier.padding(start = 12.dp, top = 4.dp)
-      )
-    }
-  }
-
-}
 
 val validateIsNotBlank: (String) -> Boolean = {
   it.isNotBlank()

@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 object StandaloneUtil {
-  private val LOG = LoggerFactory.getLogger(javaClass)
+  private val log = LoggerFactory.getLogger(javaClass)
   private val mapper = ObjectMapper().registerKotlinModule()
 
   fun login(key: String, lock: String): Permit? {
@@ -67,7 +67,7 @@ object StandaloneUtil {
         expireDate
       )
     } catch (e: Exception) {
-      LOG.error("login Error: {}", e.message)
+      log.error("login Error: {}", e.message)
       return null
     }
 
@@ -75,7 +75,7 @@ object StandaloneUtil {
 
   fun checkKeyAndLockEquals(key: String?, lock: String?): Boolean {
     if (key.isNullOrBlank() || lock.isNullOrBlank()) {
-      LOG.warn("key or lock is null, login failed")
+      log.warn("key or lock is null, login failed")
       return false
     }
     val keyBytes = Base64.getDecoder().decode(key)!!
