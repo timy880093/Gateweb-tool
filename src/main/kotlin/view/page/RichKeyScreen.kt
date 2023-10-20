@@ -5,143 +5,112 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import model.TextFieldState
-import org.slf4j.LoggerFactory
-import view.Space
-import view.ValidatedTextField
-import view.ValidationTextField
+import utils.isNumber
+import view.composable.Space
+import view.composable.ValidatedTextField
 import viewModel.RichKeyEvent
 import viewModel.RichKeyViewModel
 
 @Composable
 @Preview
 fun RichKeyScreen(viewModel: RichKeyViewModel) {
-  val log = LoggerFactory.getLogger("RichKeyScreen")
 
-  var filedValue by remember { mutableStateOf(TextFieldState("", false)) }
-  var textValue by remember { mutableStateOf("") }
-  var isValidationEnabled by remember { mutableStateOf(false) }
-
-  val validate by viewModel.enableValidate.collectAsState()
-  var yearEnd by remember { mutableStateOf("00") }
-  var localPrintCount by remember { mutableStateOf("0") }
-  var cloudPrintCount by remember { mutableStateOf("0") }
-  var csvTransformCount by remember { mutableStateOf("0") }
-  var txtTransformCount by remember { mutableStateOf("0") }
-  var transferCount by remember { mutableStateOf("0") }
-  var ftpCount by remember { mutableStateOf("0") }
-  var emailCount by remember { mutableStateOf("0") }
-  var webCount by remember { mutableStateOf("0") }
-  var key by remember { mutableStateOf("") }
-  var lock by remember { mutableStateOf("") }
-
-  val taxId1State by viewModel.taxId1.collectAsState()
-  var taxId2State by remember { mutableStateOf(TextFieldState("00000000", false)) }
-  var taxId3State by remember { mutableStateOf(TextFieldState("00000000", false)) }
-  var localPrintCountState by remember { mutableStateOf(TextFieldState("0", false)) }
+  val enableValidate by viewModel.enableValidate.collectAsState()
+  val taxId1 by viewModel.taxId1.collectAsState()
+  val taxId2 by viewModel.taxId2.collectAsState()
+  val taxId3 by viewModel.taxId3.collectAsState()
+  val yearEnd2 by viewModel.yearEnd2.collectAsState()
+  val localPrintCount by viewModel.localPrintCount.collectAsState()
+  val csvTransformCount by viewModel.csvTransformCount.collectAsState()
+  val txtTransformCount by viewModel.txtTransformCount.collectAsState()
+  val transferCount by viewModel.transferCount.collectAsState()
+  val ftpCount by viewModel.ftpCount.collectAsState()
+  val cloudPrintCount by viewModel.cloudPrintCount.collectAsState()
+  val emailCount by viewModel.emailCount.collectAsState()
+  val webCount by viewModel.webCount.collectAsState()
+  val key by viewModel.key.collectAsState()
+  val lock by viewModel.lock.collectAsState()
 
   Column {
     Row {
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
-
         ValidatedTextField(
-          "Input", isValidationEnabled, listOf(
-            validateIsNotBlank to "Input cannot be empty",
-            validateIs8Words to "Input must be at least 5 characters long"
+          "統編1", taxId1.text, enableValidate, listOf(
+            validateIsNotBlank to "必填",
+            validateIs8Words to "必須 8 碼數字"
           )
-        ) { field -> filedValue = field }
-
+        ) { viewModel.onChange(RichKeyEvent.UpdateTaxId1(it)) }
+        Space(10)
         ValidatedTextField(
-          "Input", validate, listOf(
-            validateIsNotBlank to "Input cannot be empty",
-            validateIs8Words to "Input must be at least 5 characters long"
+          "統編2", taxId2.text, enableValidate, listOf(
+            validateIsNotBlank to "必填",
+            validateIs8Words to "必須 8 碼數字"
           )
-        ) { viewModel.updateField(RichKeyEvent.UpdateTaxId1(it)) }
-
-        ValidationTextField(
-          "統編1", taxId1State.text, validate,
-          mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
-        ) { viewModel.updateField(RichKeyEvent.UpdateTaxId1(it)) }
-
-//        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
+        ) { viewModel.onChange(RichKeyEvent.UpdateTaxId2(it)) }
         Space(10)
-        ValidationTextField(
-          "統編2", taxId2State.text, validate,
-          mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
-        ) { taxId2State = it }
+        ValidatedTextField(
+          "統編3", taxId3.text, enableValidate, listOf(
+            validateIsNotBlank to "必填",
+            validateIs8Words to "必須 8 碼數字"
+          )
+        ) { viewModel.onChange(RichKeyEvent.UpdateTaxId3(it)) }
         Space(10)
-        ValidationTextField(
-          "統編3", taxId3State.text, validate,
-          mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
-        ) { taxId3State = it }
+        ValidatedTextField(
+          "西元年末2碼", yearEnd2.text, enableValidate, listOf(
+            validateIsNotBlank to "必填",
+            validateIs2Words to "必須 2 碼數字"
+          )
+        ) { viewModel.onChange(RichKeyEvent.UpdateYearEnd2(it)) }
+
       }
-      Space(20)
+      Space(15)
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
-//        TextField(
-//          modifier = Modifier.fillMaxWidth().height(50.dp),
-//          label = { Text("本地印表") },
-//          value = localPrintCount,
-//          onValueChange = { localPrintCount = it },
-//        )
-//        ValidationTextField(
-//          "本地印表", localPrintCountState.text, validate,
-//          mapOf("必填" to validateIsNotBlank, "必須為數字" to validateIsNumber)
-//        ) { localPrintCountState = it }
+        ValidatedTextField(
+          "本地印表", localPrintCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+        ) { viewModel.onChange(RichKeyEvent.UpdateLocalPrintCount(it)) }
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("CSV 轉檔") },
-          value = csvTransformCount,
-          onValueChange = { csvTransformCount = it },
-        )
+        ValidatedTextField(
+          "CSV 轉檔", csvTransformCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+        ) { viewModel.onChange(RichKeyEvent.UpdateCsvTransformCount(it)) }
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("TXT 轉檔") },
-          value = txtTransformCount,
-          onValueChange = { txtTransformCount = it },
-        )
+        ValidatedTextField(
+          "TXT 轉檔", txtTransformCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+        ) { viewModel.onChange(RichKeyEvent.UpdateTxtTransformCount(it)) }
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("傳輸") },
-          value = transferCount,
-          onValueChange = { transferCount = it },
-        )
+        ValidatedTextField(
+          "傳輸", transferCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+        ) { viewModel.onChange(RichKeyEvent.UpdateTransferCount(it)) }
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
-          label = { Text("FTP 傳輸") },
-          value = ftpCount,
-          onValueChange = { ftpCount = it }
-        )
+        ValidatedTextField(
+          "FTP 傳輸", ftpCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+        ) { viewModel.onChange(RichKeyEvent.UpdateFtpCount(it)) }
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
+        OutlinedTextField(
+          modifier = Modifier.fillMaxWidth(),
           label = { Text("雲端印表") },
-          value = cloudPrintCount,
-          onValueChange = { cloudPrintCount = it },
+          value = cloudPrintCount.text,
+          onValueChange = {},
           enabled = false
         )
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
+        OutlinedTextField(
+          modifier = Modifier.fillMaxWidth(),
           label = { Text("Email") },
-          value = emailCount,
-          onValueChange = { emailCount = it },
+          value = emailCount.text,
+          onValueChange = {},
           enabled = false
         )
         Space(5)
-        TextField(
-          modifier = Modifier.fillMaxWidth().height(50.dp),
+        OutlinedTextField(
+          modifier = Modifier.fillMaxWidth(),
           label = { Text("Web") },
-          value = webCount,
-          onValueChange = { webCount = it },
+          value = webCount.text,
+          onValueChange = {},
           enabled = false
         )
 
@@ -153,10 +122,9 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.Center
     ) {
-      Button(onClick = {
-        isValidationEnabled = true
-        viewModel.onClick()
-      }) { Text("產生") }
+      Button(onClick = { viewModel.generate() }) { Text("產生") }
+      Space(5)
+      Button(onClick = { viewModel.reset() }) { Text("清除") }
     }
     Space(20)
     Row(
@@ -192,14 +160,13 @@ val validateIsNotBlank: (String) -> Boolean = {
 }
 
 val validateIs8Words: (String) -> Boolean = {
-  it.length == 8
+  it.length == 8 && it.isNumber()
 }
 
-val validateIsNumber: (String) -> Boolean = {
-  try {
-    it.toInt()
-    true
-  } catch (e: Exception) {
-    false
-  }
+val validateIs2Words: (String) -> Boolean = {
+  it.length == 2 && it.isNumber()
+}
+
+val validateIsNumberOrEmpty: (String) -> Boolean = {
+  it.isNumber() || it.isEmpty()
 }

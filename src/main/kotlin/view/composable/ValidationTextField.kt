@@ -1,6 +1,5 @@
-package view
+package view.composable
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
@@ -10,11 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.TextFieldState
-
-@Composable
-fun Space(int: Int) {
-  Spacer(modifier = Modifier.padding(int.dp))
-}
 
 @Composable
 fun ValidationTextField(
@@ -58,15 +52,14 @@ fun ValidationTextField(
 @Composable
 fun ValidatedTextField(
   label: String,
-  validationEnabled: Boolean,
+  defaultValue: String,
+  enableValidate: Boolean,
   validators: List<Pair<(String) -> Boolean, String>>,
   onStateChanged: (TextFieldState) -> Unit
 ) {
-  var value by remember { mutableStateOf("") }
-  var isError by remember { mutableStateOf(false) }
-
-  if (validationEnabled)
-    isError = validators.any { (validator, _) -> !validator(value) }
+  var value by remember { mutableStateOf(defaultValue) }
+  var isError by remember { mutableStateOf(value.isError(validators)) }
+  onStateChanged(TextFieldState(value, isError))
 
   OutlinedTextField(
     modifier = Modifier.fillMaxWidth(),
@@ -74,30 +67,27 @@ fun ValidatedTextField(
     value = value,
     onValueChange = {
       value = it
-      isError = validators.any { (validator, _) -> !validator(value) }
+      isError = value.isError(validators)
       onStateChanged(TextFieldState(value, isError))
     },
-    isError = isError
+    isError = enableValidate && isError
   )
 
-  if (isError)
+  if (enableValidate && isError)
     validators.forEach { (validator, message) ->
-      if (!validator(value)) {
-        Text(
-          text = message,
-          color = Color.Red,
-          modifier = Modifier.padding(start = 12.dp, top = 4.dp)
-        )
-      }
+      if (validator(value)) return
+      Text(
+        text = message,
+        color = Color.Red,
+        modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+      )
     }
 }
 
-
-private fun String.isError(validators: Map<String, (String) -> Boolean>): Boolean {
-  return validators.values.any { func -> !func(this) }
-}
-
-
 private fun String.isError2(validators: Map<String, (String) -> Boolean>): Set<String> {
   return validators.filterValues { func -> !func(this) }.keys
+}
+
+private fun String.isError(validators: List<Pair<(String) -> Boolean, String>>): Boolean {
+  return validators.any { (validator, _) -> !validator(this) }
 }
