@@ -92,7 +92,7 @@ fun App() {
           }
           // Right Content
           Column(
-            modifier = Modifier.fillMaxWidth().weight(0.7f).padding(20.dp)
+            modifier = Modifier.fillMaxWidth().weight(0.7f).padding(horizontal = 40.dp)
               .verticalScroll(rememberScrollState())
           ) {
             PageRouter(isHome, selectedPage)

@@ -58,15 +58,34 @@ dependencies {
 //                implementation("io.insert-koin:koin-androidx-compose:3.4.2")
 //            }
 //        }
+tasks.withType<JavaCompile> {
+  sourceCompatibility = JavaVersion.VERSION_17.toString()
+  targetCompatibility = JavaVersion.VERSION_17.toString()
+}
 
 compose.desktop {
   application {
     mainClass = "MainKt"
 
     nativeDistributions {
+      modules("java.naming")
+//      modules("java.instrument")
+//      modules("java.management")
+//      modules("java.sql")
+//      modules("jdk.unsupported")
+
       targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
       packageName = "Gateweb-tool"
       packageVersion = "1.0.0"
+//      macOS{
+//        iconFile.set(project.file("gateweb_logo.png"))
+//      }
+      windows{
+        iconFile.set(project.file("launcher/gateweb_logo.ico"))
+      }
+      linux{
+        iconFile.set(project.file("launcher/gateweb_logo.png"))
+      }
     }
   }
 }

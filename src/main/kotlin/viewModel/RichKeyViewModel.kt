@@ -52,13 +52,12 @@ class RichKeyViewModel : ViewModel() {
 
   fun generate() {
     log.info("generate")
-//    println(taxId2State.isError)
-//    println(taxId3State.isError)
     _enableValidate.value = true
-    println(_taxId1.value)
-    println(_taxId2.value)
-    println(_taxId3.value)
-    if (_taxId1.value.isError || _taxId2.value.isError || _taxId3.value.isError) {
+    if (_taxId1.value.isError || _taxId2.value.isError || _taxId3.value.isError || _yearEnd2.value.isError
+      || _localPrintCount.value.isError || _csvTransformCount.value.isError || _txtTransformCount.value.isError
+      || _transferCount.value.isError || _ftpCount.value.isError || _cloudPrintCount.value.isError
+      || emailCount.value.isError || webCount.value.isError
+    ) {
       log.warn("validate error")
       return
     }
@@ -101,20 +100,20 @@ class RichKeyViewModel : ViewModel() {
     return errors
   }
 
-  fun reset(){
+  fun reset() {
     log.info("reset")
-    _taxId1.value = TextFieldState("",false)
-    _taxId2.value = TextFieldState("00000000",false)
-    _taxId3.value = TextFieldState("00000000",false)
-    _yearEnd2.value = TextFieldState("40",false)
-    _localPrintCount.value = TextFieldState("",false)
-    _csvTransformCount.value = TextFieldState("",false)
-    _txtTransformCount.value = TextFieldState("",false)
-    _transferCount.value = TextFieldState("",false)
-    _ftpCount.value = TextFieldState("",false)
-    _cloudPrintCount.value = TextFieldState("",false)
-    _emailCount.value = TextFieldState("",false)
-    webCount.value = TextFieldState("",false)
+    _taxId1.value = TextFieldState("", false)
+    _taxId2.value = TextFieldState("00000000", false)
+    _taxId3.value = TextFieldState("00000000", false)
+    _yearEnd2.value = TextFieldState("40", false)
+    _localPrintCount.value = TextFieldState("", false)
+    _csvTransformCount.value = TextFieldState("", false)
+    _txtTransformCount.value = TextFieldState("", false)
+    _transferCount.value = TextFieldState("", false)
+    _ftpCount.value = TextFieldState("", false)
+    _cloudPrintCount.value = TextFieldState("", false)
+    _emailCount.value = TextFieldState("", false)
+    webCount.value = TextFieldState("", false)
     key.value = ""
     lock.value = ""
   }

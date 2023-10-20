@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import utils.isNumber
 import view.composable.Space
 import view.composable.ValidatedTextField
@@ -122,9 +123,9 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.Center
     ) {
-      Button(onClick = { viewModel.generate() }) { Text("產生") }
+      Button(onClick = { viewModel.generate() }) { Text(text = "產生", fontSize = 16.sp) }
       Space(5)
-      Button(onClick = { viewModel.reset() }) { Text("清除") }
+      Button(onClick = { viewModel.reset() }) { Text(text = "清除", fontSize = 16.sp) }
     }
     Space(20)
     Row(
