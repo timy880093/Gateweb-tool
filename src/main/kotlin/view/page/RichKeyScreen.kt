@@ -10,21 +10,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import model.Permit
 import model.TextFieldState
-import org.koin.compose.koinInject
 import org.slf4j.LoggerFactory
-import service.RichService
 import view.Space
 import view.ValidationTextField
+import viewModel.RichKeyEvent
+import viewModel.RichKeyViewModel
 
 @Composable
 @Preview
-fun RichKeyScreen() {
+fun RichKeyScreen(viewModel: RichKeyViewModel) {
   val log = LoggerFactory.getLogger("RichKeyScreen")
-  val richService = koinInject<RichService>()
 
-  var validate by remember { mutableStateOf(false) }
+  val validate by viewModel.enableValidate.collectAsState()
   var yearEnd by remember { mutableStateOf("00") }
   var localPrintCount by remember { mutableStateOf("0") }
   var cloudPrintCount by remember { mutableStateOf("0") }
@@ -37,7 +35,7 @@ fun RichKeyScreen() {
   var key by remember { mutableStateOf("") }
   var lock by remember { mutableStateOf("") }
 
-  var taxId1State by remember { mutableStateOf(TextFieldState("", false)) }
+  val taxId1State by viewModel.taxId1.collectAsState()
   var taxId2State by remember { mutableStateOf(TextFieldState("00000000", false)) }
   var taxId3State by remember { mutableStateOf(TextFieldState("00000000", false)) }
   var localPrintCountState by remember { mutableStateOf(TextFieldState("0", false)) }
@@ -48,7 +46,7 @@ fun RichKeyScreen() {
         ValidationTextField(
           "統編1", taxId1State.text, validate,
           mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
-        ) { taxId1State = it }
+        ) { viewModel.updateField(RichKeyEvent.UpdateTaxId1(it)) }
 //        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
         Space(10)
         ValidationTextField(
@@ -135,29 +133,7 @@ fun RichKeyScreen() {
       horizontalArrangement = Arrangement.Center
     ) {
       Button(onClick = {
-//        isError = taxId1.isBlank()
-        println(taxId1State.isError)
-        println(taxId2State.isError)
-        println(taxId3State.isError)
-        validate = true
-        if (taxId1State.isError || taxId2State.isError || taxId3State.isError) {
-          log.warn("validate error")
-          return@Button
-        }
-
-        val permit = Permit(
-          success = true,
-          businessNo = listOf(taxId1State.text, taxId2State.text, taxId3State.text),
-          localPrintAuthorizedQuantity = localPrintCount.toInt(),
-          csvTransformAuthorizedQuantity = csvTransformCount.toInt(),
-          txtTransformAuthorizedQuantity = txtTransformCount.toInt(),
-          transferAuthorizedQuantity = transferCount.toInt(),
-          ftpGrabberAuthorizedQuantity = ftpCount.toInt(),
-        )
-        val (k, l) = richService.generateStandaloneKey(permit, yearEnd)
-        key = k
-        lock = l
-        println("generate OK")
+        viewModel.onClick()
       }) { Text("產生") }
     }
     Space(20)

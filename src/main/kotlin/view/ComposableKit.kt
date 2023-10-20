@@ -19,13 +19,14 @@ fun Space(int: Int) {
 @Composable
 fun ValidationTextField(
   label: String,
-  defaultValue:String,
-  enableValidate: Boolean,
+  defaultValue: String,
+  defaultEnableValidate: Boolean,
   validators: Map<String, (String) -> Boolean>,
   onStateChanged: (TextFieldState) -> Unit
 ) {
   var value by remember { mutableStateOf(defaultValue) }
-  var isError by remember { mutableStateOf(false) }
+  var enableValidate by remember { mutableStateOf(defaultEnableValidate) }
+  var isError by remember { mutableStateOf(value.isError(validators)) }
 
   OutlinedTextField(
     modifier = Modifier.fillMaxWidth(),
@@ -34,7 +35,7 @@ fun ValidationTextField(
     onValueChange = {
       value = it
       if (enableValidate)
-        isError = validators.values.any { func -> !func(value) }
+        isError = value.isError(validators)
       // call back 將組件內 state 傳出去
       onStateChanged(TextFieldState(value, isError))
     },
@@ -52,4 +53,41 @@ fun ValidationTextField(
     }
 
 
+}
+
+@Composable
+fun ValidationTextField(
+  label: String,
+  defaultValue: String,
+  errors: List<String>,
+  onStateChanged: (TextFieldState) -> Unit
+) {
+  var valueState by remember { mutableStateOf(defaultValue) }
+  var errorsState by remember { mutableStateOf(errors) }
+  var isError by remember { mutableStateOf(errorsState.isNotEmpty()) }
+
+  OutlinedTextField(
+    modifier = Modifier.fillMaxWidth(),
+    label = { Text(label) },
+    value = valueState,
+    onValueChange = {
+      valueState = it
+      // call back 將組件內 state 傳出去
+      onStateChanged(TextFieldState(valueState, isError))
+    },
+    isError = isError
+  )
+
+  errorsState.forEach {
+    Text(
+      text = it,
+      color = Color.Red,
+      modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+    )
+  }
+
+}
+
+private fun String.isError(validators: Map<String, (String) -> Boolean>): Boolean {
+  return validators.values.any { func -> !func(this) }
 }
