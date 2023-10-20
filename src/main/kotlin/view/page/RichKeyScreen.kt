@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import model.TextFieldState
 import org.slf4j.LoggerFactory
 import view.Space
+import view.ValidatedTextField
 import view.ValidationTextField
 import viewModel.RichKeyEvent
 import viewModel.RichKeyViewModel
@@ -21,6 +22,10 @@ import viewModel.RichKeyViewModel
 @Preview
 fun RichKeyScreen(viewModel: RichKeyViewModel) {
   val log = LoggerFactory.getLogger("RichKeyScreen")
+
+  var filedValue by remember { mutableStateOf(TextFieldState("", false)) }
+  var textValue by remember { mutableStateOf("") }
+  var isValidationEnabled by remember { mutableStateOf(false) }
 
   val validate by viewModel.enableValidate.collectAsState()
   var yearEnd by remember { mutableStateOf("00") }
@@ -43,10 +48,26 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
   Column {
     Row {
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
+
+        ValidatedTextField(
+          "Input", isValidationEnabled, listOf(
+            validateIsNotBlank to "Input cannot be empty",
+            validateIs8Words to "Input must be at least 5 characters long"
+          )
+        ) { field -> filedValue = field }
+
+        ValidatedTextField(
+          "Input", validate, listOf(
+            validateIsNotBlank to "Input cannot be empty",
+            validateIs8Words to "Input must be at least 5 characters long"
+          )
+        ) { viewModel.updateField(RichKeyEvent.UpdateTaxId1(it)) }
+
         ValidationTextField(
           "統編1", taxId1State.text, validate,
           mapOf("統編必填" to validateIsNotBlank, "統編格式有誤" to validateIs8Words)
         ) { viewModel.updateField(RichKeyEvent.UpdateTaxId1(it)) }
+
 //        ValidationTextField("統編1", "統編有誤", validateIsNotBlank) { taxId1State = it }
         Space(10)
         ValidationTextField(
@@ -67,10 +88,10 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
 //          value = localPrintCount,
 //          onValueChange = { localPrintCount = it },
 //        )
-        ValidationTextField(
-          "本地印表", localPrintCountState.text, validate,
-          mapOf("必填" to validateIsNotBlank, "必須為數字" to validateIsNumber)
-        ) { localPrintCountState = it }
+//        ValidationTextField(
+//          "本地印表", localPrintCountState.text, validate,
+//          mapOf("必填" to validateIsNotBlank, "必須為數字" to validateIsNumber)
+//        ) { localPrintCountState = it }
         Space(5)
         TextField(
           modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -133,6 +154,7 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
       horizontalArrangement = Arrangement.Center
     ) {
       Button(onClick = {
+        isValidationEnabled = true
         viewModel.onClick()
       }) { Text("產生") }
     }

@@ -20,13 +20,14 @@ fun Space(int: Int) {
 fun ValidationTextField(
   label: String,
   defaultValue: String,
-  defaultEnableValidate: Boolean,
+  defaultValidate: Boolean,
   validators: Map<String, (String) -> Boolean>,
   onStateChanged: (TextFieldState) -> Unit
 ) {
   var value by remember { mutableStateOf(defaultValue) }
-  var enableValidate by remember { mutableStateOf(defaultEnableValidate) }
-  var isError by remember { mutableStateOf(value.isError(validators)) }
+  var enableValidate by remember { mutableStateOf(defaultValidate) }
+  var list by remember { mutableStateOf(value.isError2(validators)) }
+  var isError by remember { mutableStateOf(list.isNotEmpty()) }
 
   OutlinedTextField(
     modifier = Modifier.fillMaxWidth(),
@@ -34,60 +35,69 @@ fun ValidationTextField(
     value = value,
     onValueChange = {
       value = it
-      if (enableValidate)
-        isError = value.isError(validators)
+      enableValidate = true
+      list = value.isError2(validators)
+      isError = list.isNotEmpty()
       // call back 將組件內 state 傳出去
       onStateChanged(TextFieldState(value, isError))
     },
-    isError = isError
+    isError = enableValidate && isError
   )
 
-
   if (enableValidate)
-    validators.filterValues { func -> !func(value) }.forEach { (t, _) ->
+    list.forEach {
       Text(
-        text = t,
+        text = it,
         color = Color.Red,
         modifier = Modifier.padding(start = 12.dp, top = 4.dp)
       )
     }
 
-
 }
 
 @Composable
-fun ValidationTextField(
+fun ValidatedTextField(
   label: String,
-  defaultValue: String,
-  errors: List<String>,
+  validationEnabled: Boolean,
+  validators: List<Pair<(String) -> Boolean, String>>,
   onStateChanged: (TextFieldState) -> Unit
 ) {
-  var valueState by remember { mutableStateOf(defaultValue) }
-  var errorsState by remember { mutableStateOf(errors) }
-  var isError by remember { mutableStateOf(errorsState.isNotEmpty()) }
+  var value by remember { mutableStateOf("") }
+  var isError by remember { mutableStateOf(false) }
+
+  if (validationEnabled)
+    isError = validators.any { (validator, _) -> !validator(value) }
 
   OutlinedTextField(
     modifier = Modifier.fillMaxWidth(),
     label = { Text(label) },
-    value = valueState,
+    value = value,
     onValueChange = {
-      valueState = it
-      // call back 將組件內 state 傳出去
-      onStateChanged(TextFieldState(valueState, isError))
+      value = it
+      isError = validators.any { (validator, _) -> !validator(value) }
+      onStateChanged(TextFieldState(value, isError))
     },
     isError = isError
   )
 
-  errorsState.forEach {
-    Text(
-      text = it,
-      color = Color.Red,
-      modifier = Modifier.padding(start = 12.dp, top = 4.dp)
-    )
-  }
-
+  if (isError)
+    validators.forEach { (validator, message) ->
+      if (!validator(value)) {
+        Text(
+          text = message,
+          color = Color.Red,
+          modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+        )
+      }
+    }
 }
+
 
 private fun String.isError(validators: Map<String, (String) -> Boolean>): Boolean {
   return validators.values.any { func -> !func(this) }
+}
+
+
+private fun String.isError2(validators: Map<String, (String) -> Boolean>): Set<String> {
+  return validators.filterValues { func -> !func(this) }.keys
 }

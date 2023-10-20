@@ -1,15 +1,22 @@
 package viewModel
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow
 import model.Permit
 import model.TextFieldState
 import org.slf4j.LoggerFactory
 import utils.StandaloneUtil
+import utils.ValidateLogic
+import view.page.validateIsNotBlank
 
 class RichKeyViewModel : ViewModel() {
-  companion object {
-    private val log = LoggerFactory.getLogger(RichKeyViewModel::class.java)
-  }
+  private val log = LoggerFactory.getLogger(RichKeyViewModel::class.java)
+
+//  companion object {
+//    private val log = LoggerFactory.getLogger(RichKeyViewModel::class.java)
+//  }
+
 
   private val _taxId1 = MutableStateFlow(TextFieldState("", false))
   val taxId1 = _taxId1
@@ -24,8 +31,10 @@ class RichKeyViewModel : ViewModel() {
   }
 
   fun onClick() {
-    println(_taxId1.value.text)
-    println(_taxId1.value.isError)
+    log.info("submit")
+    println(_taxId1.value)
+    println(taxId1.value)
+
 //    println(taxId2State.isError)
 //    println(taxId3State.isError)
     _enableValidate.value = true
@@ -55,9 +64,18 @@ class RichKeyViewModel : ViewModel() {
     }
   }
 
+  fun validateTaxId(value: String): List<String> {
+    val errors = mutableListOf<String>()
+    when {
+      !ValidateLogic.isNotBlank(value) -> errors + "統編必填"
+      !ValidateLogic.is8Words(value) -> errors + "統編需 8 碼"
+    }
+    return errors
+  }
+
 }
 
 
-sealed class RichKeyEvent() {
+sealed class RichKeyEvent {
   data class UpdateTaxId1(val state: TextFieldState) : RichKeyEvent()
 }

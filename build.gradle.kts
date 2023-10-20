@@ -30,9 +30,12 @@ dependencies {
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
 //  implementation("org.slf4j:slf4j-api:2.0.9")
-  implementation("org.apache.logging.log4j:log4j-api:2.20.0")
-  implementation("org.apache.logging.log4j:log4j-core:2.20.0")
-  implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
+//  implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+//  implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+//  implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
+  implementation("org.slf4j:slf4j-api:1.7.32")
+  implementation("ch.qos.logback:logback-classic:1.2.9")
+
 
   implementation("commons-codec:commons-codec:1.15")
 
