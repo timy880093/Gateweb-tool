@@ -53,6 +53,9 @@ class RichKeyViewModel : ViewModel() {
   fun generate() {
     log.info("generate")
     _enableValidate.value = true
+    println(_taxId1.value)
+    println(_taxId2.value)
+    println(_taxId3.value)
     if (_taxId1.value.isError || _taxId2.value.isError || _taxId3.value.isError || _yearEnd2.value.isError
       || _localPrintCount.value.isError || _csvTransformCount.value.isError || _txtTransformCount.value.isError
       || _transferCount.value.isError || _ftpCount.value.isError || _cloudPrintCount.value.isError

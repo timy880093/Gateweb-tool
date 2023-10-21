@@ -52,12 +52,12 @@ fun ValidationTextField(
 @Composable
 fun ValidatedTextField(
   label: String,
-  defaultValue: String,
+  value: String,
   enableValidate: Boolean,
   validators: List<Pair<(String) -> Boolean, String>>,
   onStateChanged: (TextFieldState) -> Unit
 ) {
-  var value by remember { mutableStateOf(defaultValue) }
+  var isValidate by remember { mutableStateOf(false) }
   var isError by remember { mutableStateOf(value.isError(validators)) }
   onStateChanged(TextFieldState(value, isError))
 
@@ -66,16 +66,16 @@ fun ValidatedTextField(
     label = { Text(label) },
     value = value,
     onValueChange = {
-      value = it
-      isError = value.isError(validators)
-      onStateChanged(TextFieldState(value, isError))
+      isValidate = true
+      isError = it.isError(validators)
+      onStateChanged(TextFieldState(it, isError))
     },
-    isError = isError
+    isError = (enableValidate || isValidate) && isError
   )
 
-  if (isError)
+  if ((enableValidate || isValidate) && isError)
     validators.forEach { (validator, message) ->
-      if (validator(value)) return
+      if (validator(value)) return@forEach
       Text(
         text = message,
         color = Color.Red,

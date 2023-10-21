@@ -42,28 +42,24 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
         ValidatedTextField(
           "統編1", taxId1.text, enableValidate, listOf(
-            validateIsNotBlank to "必填",
             validateIs8Words to "必須 8 碼數字"
           )
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId1(it)) }
         Space(10)
         ValidatedTextField(
           "統編2", taxId2.text, enableValidate, listOf(
-            validateIsNotBlank to "必填",
             validateIs8Words to "必須 8 碼數字"
           )
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId2(it)) }
         Space(10)
         ValidatedTextField(
           "統編3", taxId3.text, enableValidate, listOf(
-            validateIsNotBlank to "必填",
             validateIs8Words to "必須 8 碼數字"
           )
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId3(it)) }
         Space(10)
         ValidatedTextField(
           "西元年末2碼", yearEnd2.text, enableValidate, listOf(
-            validateIsNotBlank to "必填",
             validateIs2Words to "必須 2 碼數字"
           )
         ) { viewModel.onChange(RichKeyEvent.UpdateYearEnd2(it)) }
