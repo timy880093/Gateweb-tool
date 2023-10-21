@@ -70,10 +70,10 @@ fun ValidatedTextField(
       isError = value.isError(validators)
       onStateChanged(TextFieldState(value, isError))
     },
-    isError = enableValidate && isError
+    isError = isError
   )
 
-  if (enableValidate && isError)
+  if (isError)
     validators.forEach { (validator, message) ->
       if (validator(value)) return
       Text(
