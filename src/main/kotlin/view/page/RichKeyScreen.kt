@@ -21,21 +21,6 @@ import viewModel.RichKeyViewModel
 @Preview
 fun RichKeyScreen(viewModel: RichKeyViewModel) {
 
-//  val enableValidate by viewModel.enableValidate.collectAsState()
-//  val taxId1 by viewModel.taxId1.collectAsState()
-//  val taxId2 by viewModel.taxId2.collectAsState()
-//  val taxId3 by viewModel.taxId3.collectAsState()
-//  val yearEnd2 by viewModel.yearEnd2.collectAsState()
-//  val localPrintCount by viewModel.localPrintCount.collectAsState()
-//  val csvTransformCount by viewModel.csvTransformCount.collectAsState()
-//  val txtTransformCount by viewModel.txtTransformCount.collectAsState()
-//  val transferCount by viewModel.transferCount.collectAsState()
-//  val ftpCount by viewModel.ftpCount.collectAsState()
-//  val cloudPrintCount by viewModel.cloudPrintCount.collectAsState()
-//  val emailCount by viewModel.emailCount.collectAsState()
-//  val webCount by viewModel.webCount.collectAsState()
-//  val key by viewModel.key.collectAsState()
-//  val lock by viewModel.lock.collectAsState()
   val formState by viewModel.formState.collectAsState()
 
   Column {
@@ -50,7 +35,7 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId2(it)) }
         Space(10)
         ValidatedTextField(
-          "統編3",formState.taxId3.text, formState.enableValidate, formState.taxId3.errorMessage()
+          "統編3", formState.taxId3.text, formState.enableValidate, formState.taxId3.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId3(it)) }
         Space(10)
         ValidatedTextField(
@@ -65,11 +50,17 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
         ) { viewModel.onChange(RichKeyEvent.UpdateLocalPrintCount(it)) }
         Space(5)
         ValidatedTextField(
-          "CSV 轉檔", formState.csvTransformCount.text, formState.enableValidate, formState.csvTransformCount.errorMessage()
+          "CSV 轉檔",
+          formState.csvTransformCount.text,
+          formState.enableValidate,
+          formState.csvTransformCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateCsvTransformCount(it)) }
         Space(5)
         ValidatedTextField(
-          "TXT 轉檔", formState.txtTransformCount.text, formState.enableValidate, formState.txtTransformCount.errorMessage()
+          "TXT 轉檔",
+          formState.txtTransformCount.text,
+          formState.enableValidate,
+          formState.txtTransformCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTxtTransformCount(it)) }
         Space(5)
         ValidatedTextField(
