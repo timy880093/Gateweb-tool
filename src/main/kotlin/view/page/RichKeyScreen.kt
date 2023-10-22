@@ -21,76 +21,69 @@ import viewModel.RichKeyViewModel
 @Preview
 fun RichKeyScreen(viewModel: RichKeyViewModel) {
 
-  val enableValidate by viewModel.enableValidate.collectAsState()
-  val taxId1 by viewModel.taxId1.collectAsState()
-  val taxId2 by viewModel.taxId2.collectAsState()
-  val taxId3 by viewModel.taxId3.collectAsState()
-  val yearEnd2 by viewModel.yearEnd2.collectAsState()
-  val localPrintCount by viewModel.localPrintCount.collectAsState()
-  val csvTransformCount by viewModel.csvTransformCount.collectAsState()
-  val txtTransformCount by viewModel.txtTransformCount.collectAsState()
-  val transferCount by viewModel.transferCount.collectAsState()
-  val ftpCount by viewModel.ftpCount.collectAsState()
-  val cloudPrintCount by viewModel.cloudPrintCount.collectAsState()
-  val emailCount by viewModel.emailCount.collectAsState()
-  val webCount by viewModel.webCount.collectAsState()
-  val key by viewModel.key.collectAsState()
-  val lock by viewModel.lock.collectAsState()
+//  val enableValidate by viewModel.enableValidate.collectAsState()
+//  val taxId1 by viewModel.taxId1.collectAsState()
+//  val taxId2 by viewModel.taxId2.collectAsState()
+//  val taxId3 by viewModel.taxId3.collectAsState()
+//  val yearEnd2 by viewModel.yearEnd2.collectAsState()
+//  val localPrintCount by viewModel.localPrintCount.collectAsState()
+//  val csvTransformCount by viewModel.csvTransformCount.collectAsState()
+//  val txtTransformCount by viewModel.txtTransformCount.collectAsState()
+//  val transferCount by viewModel.transferCount.collectAsState()
+//  val ftpCount by viewModel.ftpCount.collectAsState()
+//  val cloudPrintCount by viewModel.cloudPrintCount.collectAsState()
+//  val emailCount by viewModel.emailCount.collectAsState()
+//  val webCount by viewModel.webCount.collectAsState()
+//  val key by viewModel.key.collectAsState()
+//  val lock by viewModel.lock.collectAsState()
+  val formState by viewModel.formState.collectAsState()
 
   Column {
     Row {
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
         ValidatedTextField(
-          "統編1", taxId1.text, enableValidate, listOf(
-            validateIs8Words to "必須 8 碼數字"
-          )
+          "統編1", formState.taxId1.text, formState.enableValidate, formState.taxId1.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId1(it)) }
         Space(10)
         ValidatedTextField(
-          "統編2", taxId2.text, enableValidate, listOf(
-            validateIs8Words to "必須 8 碼數字"
-          )
+          "統編2", formState.taxId2.text, formState.enableValidate, formState.taxId2.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId2(it)) }
         Space(10)
         ValidatedTextField(
-          "統編3", taxId3.text, enableValidate, listOf(
-            validateIs8Words to "必須 8 碼數字"
-          )
+          "統編3",formState.taxId3.text, formState.enableValidate, formState.taxId3.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTaxId3(it)) }
         Space(10)
         ValidatedTextField(
-          "西元年末2碼", yearEnd2.text, enableValidate, listOf(
-            validateIs2Words to "必須 2 碼數字"
-          )
+          "西元年末2碼", formState.yearEnd2.text, formState.enableValidate, formState.yearEnd2.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateYearEnd2(it)) }
 
       }
       Space(15)
       Column(modifier = Modifier.fillMaxWidth().weight(0.5f)) {
         ValidatedTextField(
-          "本地印表", localPrintCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+          "本地印表", formState.localPrintCount.text, formState.enableValidate, formState.localPrintCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateLocalPrintCount(it)) }
         Space(5)
         ValidatedTextField(
-          "CSV 轉檔", csvTransformCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+          "CSV 轉檔", formState.csvTransformCount.text, formState.enableValidate, formState.csvTransformCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateCsvTransformCount(it)) }
         Space(5)
         ValidatedTextField(
-          "TXT 轉檔", txtTransformCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+          "TXT 轉檔", formState.txtTransformCount.text, formState.enableValidate, formState.txtTransformCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTxtTransformCount(it)) }
         Space(5)
         ValidatedTextField(
-          "傳輸", transferCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+          "傳輸", formState.transferCount.text, formState.enableValidate, formState.transferCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateTransferCount(it)) }
         Space(5)
         ValidatedTextField(
-          "FTP 傳輸", ftpCount.text, enableValidate, listOf(validateIsNumberOrEmpty to "必須數字")
+          "FTP 傳輸", formState.ftpCount.text, formState.enableValidate, formState.ftpCount.errorMessage()
         ) { viewModel.onChange(RichKeyEvent.UpdateFtpCount(it)) }
         Space(5)
         OutlinedTextField(
           modifier = Modifier.fillMaxWidth(),
           label = { Text("雲端印表") },
-          value = cloudPrintCount.text,
+          value = formState.cloudPrintCount.text,
           onValueChange = {},
           enabled = false
         )
@@ -98,7 +91,7 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
         OutlinedTextField(
           modifier = Modifier.fillMaxWidth(),
           label = { Text("Email") },
-          value = emailCount.text,
+          value = formState.emailCount.text,
           onValueChange = {},
           enabled = false
         )
@@ -106,7 +99,7 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
         OutlinedTextField(
           modifier = Modifier.fillMaxWidth(),
           label = { Text("Web") },
-          value = webCount.text,
+          value = formState.webCount.text,
           onValueChange = {},
           enabled = false
         )
@@ -119,9 +112,9 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.Center
     ) {
-      Button(onClick = { viewModel.generate() }) { Text(text = "產生", fontSize = 16.sp) }
+      Button(onClick = { viewModel.onSubmit() }) { Text(text = "產生", fontSize = 16.sp) }
       Space(5)
-      Button(onClick = { viewModel.reset() }) { Text(text = "清除", fontSize = 16.sp) }
+      Button(onClick = { viewModel.onClear() }) { Text(text = "清除", fontSize = 16.sp) }
     }
     Space(20)
     Row(
@@ -132,14 +125,14 @@ fun RichKeyScreen(viewModel: RichKeyViewModel) {
       Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
           label = { Text("Key") },
-          value = key,
+          value = formState.key,
           onValueChange = {},
           readOnly = true
         )
         Space(5)
         OutlinedTextField(
           label = { Text("Lock") },
-          value = lock,
+          value = formState.lock,
           onValueChange = {},
           readOnly = true
         )
