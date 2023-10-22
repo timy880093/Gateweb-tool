@@ -69,38 +69,33 @@ class RichKeyViewModel : ViewModel() {
 
   }
 
-  fun onSubmit() {
-    scope.launch(Dispatchers.Default) {
-      _formState.value.run {
-        Thread.sleep(3000)
-
-        log.info("generate")
-        if (isError()) {
-          log.warn("validate error")
-          _formState.value = copy(enableValidate = true)
-          return@launch
-        }
-        val permit = Permit(
-          success = true,
-          businessNo = listOf(taxId1.text, taxId2.text, taxId3.text),
-          localPrintAuthorizedQuantity = localPrintCount.text.toIntOrNull() ?: 0,
-          csvTransformAuthorizedQuantity = csvTransformCount.text.toIntOrNull() ?: 0,
-          txtTransformAuthorizedQuantity = txtTransformCount.text.toIntOrNull() ?: 0,
-          transferAuthorizedQuantity = transferCount.text.toIntOrNull() ?: 0,
-          ftpGrabberAuthorizedQuantity = ftpCount.text.toIntOrNull() ?: 0,
-        )
-        val (k, l) = generateStandaloneKey(permit, yearEnd2.text)
-        // _formState.value 在 rub scope 只能設定一次，否則會後蓋前
-        _formState.value = copy(key = k, lock = l, enableValidate = true)
-        log.info("generate OK: key[{}] , lock[{}]", k, l)
+  fun onSubmit() = scope.launch(Dispatchers.Default) {
+    _formState.value.run {
+      log.info("generate")
+      if (isError()) {
+        log.warn("validate error")
+        _formState.value = copy(enableValidate = true)
+        return@launch
       }
+      val permit = Permit(
+        success = true,
+        businessNo = listOf(taxId1.text, taxId2.text, taxId3.text),
+        localPrintAuthorizedQuantity = localPrintCount.text.toIntOrNull() ?: 0,
+        csvTransformAuthorizedQuantity = csvTransformCount.text.toIntOrNull() ?: 0,
+        txtTransformAuthorizedQuantity = txtTransformCount.text.toIntOrNull() ?: 0,
+        transferAuthorizedQuantity = transferCount.text.toIntOrNull() ?: 0,
+        ftpGrabberAuthorizedQuantity = ftpCount.text.toIntOrNull() ?: 0,
+      )
+      val (k, l) = generateStandaloneKey(permit, yearEnd2.text)
+      // _formState.value 在 rub scope 只能設定一次，否則會後蓋前
+      _formState.value = copy(key = k, lock = l, enableValidate = true)
+      log.info("generate OK: key[{}] , lock[{}]", k, l)
     }
   }
 
-  fun onClear() {
-    scope.launch(Dispatchers.Default) {
-      _formState.value = init()
-    }
+
+  fun onClear() = scope.launch(Dispatchers.Default) {
+    _formState.value = init()
   }
 
   private fun generateStandaloneKey(permit: Permit, yearEnd2: String): Pair<String, String> {
