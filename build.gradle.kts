@@ -63,6 +63,10 @@ dependencies {
 //  sourceCompatibility = JavaVersion.VERSION_17.toString()
 //  targetCompatibility = JavaVersion.VERSION_17.toString()
 //}
+//java {
+//  sourceCompatibility = JavaVersion.VERSION_11
+//  targetCompatibility = JavaVersion.VERSION_11
+//}
 tasks.withType<KotlinCompile>().configureEach {
   kotlinOptions {
     jvmTarget = "17"
