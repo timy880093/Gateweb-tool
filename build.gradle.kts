@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   kotlin("jvm")
@@ -58,9 +59,14 @@ dependencies {
 //                implementation("io.insert-koin:koin-androidx-compose:3.4.2")
 //            }
 //        }
-tasks.withType<JavaCompile> {
-  sourceCompatibility = JavaVersion.VERSION_17.toString()
-  targetCompatibility = JavaVersion.VERSION_17.toString()
+//tasks.withType<JavaCompile> {
+//  sourceCompatibility = JavaVersion.VERSION_17.toString()
+//  targetCompatibility = JavaVersion.VERSION_17.toString()
+//}
+tasks.withType<KotlinCompile>().configureEach {
+  kotlinOptions {
+    jvmTarget = "17"
+  }
 }
 
 compose.desktop {
@@ -80,10 +86,10 @@ compose.desktop {
 //      macOS{
 //        iconFile.set(project.file("gateweb_logo.png"))
 //      }
-      windows{
+      windows {
         iconFile.set(project.file("launcher/gateweb_logo.ico"))
       }
-      linux{
+      linux {
         iconFile.set(project.file("launcher/gateweb_logo.png"))
       }
     }
